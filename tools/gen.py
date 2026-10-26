@@ -1,6 +1,6 @@
 import re, json, os
 ROOT='/mnt/user-data/outputs/artifacts/f4e40824-ae7d-4cfb-9d09-67115159c811/project/'
-CSS='/_blob/73f43591e88594819cee9417ed574323'
+CSS='/_blob/e530b10be96a1b830084b553d65ae46d'
 HERO_IMG='/_blob/76a10b9728d986483bbe8ab87e4dd874'
 HAND_IMG='/_blob/070ecf4ba0bce5a6105896c061bf806d'
 main=open(ROOT+'Main.dc.html').read()
@@ -210,54 +210,88 @@ def sechead(lab,h2,p='',link=None,dark=False):
 
 pages=[]
 
+# ---------- ABOUT (v2: sub-nav, alternating bands, BD content) ----------
+HAND_CUT='/_blob/422c6a2d434ec3a30444b8bfad18717f'
+def asub(active):
+    L=[('About-Story.dc.html',"LO-CARB's story"),('About-Certificates.dc.html','Certificates'),('About-Board.dc.html','Board of directors')]
+    return '<nav class="asub" aria-label="About Us">'+''.join('<a href="%s"%s>%s</a>'%(h,' class="on" aria-current="page"' if h==active else '',n) for h,n in L)+'</nav>'
+def ahero(cr,lab,h1,lead,active,vis=''):
+    return '''<section class="ahero">
+<div class="wrap">
+'''+crumbs(cr)+'''
+<div class="ahero-grid">
+<div class="ahero-copy">'''+label(lab)+'''<h1 class="display ah1 rise">'''+h1+'''</h1><p class="ahero-lead rise d2">'''+lead+'''</p>'''+asub(active)+'''</div>
+'''+vis+'''
+</div>
+</div>
+<svg class="acurve" viewBox="0 0 1440 116" preserveAspectRatio="none" aria-hidden="true"><path d="M0 116H1440V44C1080 120 360 120 0 44Z" fill="CURVEFILL"></path></svg>
+</section>'''
+ACTA=lambda p: pcta('Read our blog or <span class="it" style="color:#8FE3B0">talk</span> to us',p,'Contact Us','Contact.dc.html','Read our blog','Blog.dc.html')
+
 # ---------- ABOUT: STORY ----------
-values_strip=open('/tmp/values_strip.html').read()
-values_strip=values_strip[:values_strip.rindex('</div>')]  # drop trailing wrapper close
-body=phero([('About Us','About-Story.dc.html'),("LO-CARB's story",None)],'About LO-CARB',"Our <span class=\"it\" style=\"color:#0EA552\">story</span>",
- 'Founded in 2021, LO-CARB is a sustainability consultancy that sees sustainability as the heart of business, not a trend or CSR. We combine science, technology and business to help Thai organizations cut emissions, meet global standards and grow.')
-# 1 Mission
-body+=sec('', """<div class="pgrid mid">
-<div class="rv">"""+label('Mission')+"""<p class="mission">We put the world <span class="hl">on a carbon diet.</span></p>
-<p class="lead" style="margin-top:22px;max-width:52ch">We map a clear path to lower emissions while driving business performance, for organizations from the public to the private sector, large and small.</p></div>
-<div class="archbox rv2"><div class="archring" aria-hidden="true"></div><div class="storyimg"><img class="zoomimg" src=\""""+HAND_IMG+"""\" alt="A seedling growing from soil in an open hand"></div><div class="seal"><small>Est.</small><b>2021</b><span>Bangkok</span></div></div>
-</div>""")
-# 2 Milestones
-MS=[('2021','LO-CARB founded'),('[Year]','Launched CarbonCal and Carbon Camp'),('2026',"Became Thailand’s first IFRS Sustainability Alliance member"),('[Year]','[Other milestone]')]
-body+=sec('sand', sechead('Milestones','How we got here')+'<div class="timeline">'+''.join('<div class="tl rv"><b>%s</b><div><h3>%s</h3></div></div>'%(y,h) for y,h in MS)+'</div>')
-# 3 We believe
-body+=sec('', """<div class="believe rv">"""+label('We believe')+"""<p class="mission" style="max-width:24ch">Sustainability is the new <span class="hl">growth core.</span></p>
-<p class="lead" style="margin-top:22px;max-width:60ch">We don’t see it as a trend or CSR, but as the heart of the business: it drives performance, reduces risk, meets customer demand and opens local and global opportunities.</p></div>""")
-# 4 Three DNAs
-body+=sec('sand', sechead('Our DNA','Three things that make LO-CARB')+items([('growth','Sustainability-rooted','We understand each sector’s challenges and find the smoothest path to transformation.'),('bolt','Technology-driven','We use technology to solve problems more efficiently than traditional methods.'),('story','Creative thinkers','We make sustainability simple, relevant and practical.')]))
-# 5 Key numbers
-KN=[('clients across 5 sectors'),('organizations using CarbonCal'),('tCO₂e measured'),('people trained through Carbon Camp'),('years in sustainability consulting')]
-body+=sec('', sechead('Key numbers','LO-CARB in numbers')+'<div class="stats stats5 rv">'+''.join('<div class="stat"><b>[x]</b><span>%s</span></div>'%k for k in KN)+'</div>')
-body+=sec('', sechead('Keep exploring','Get to know us better')+items([('cert','Certificates','Our credentials, with the IFRS Sustainability Alliance first.'),('board','Board of directors','The people who lead LO-CARB.'),('book' if False else 'doc','Read our blog','Our view on IFRS, ISSB and carbon.')]).replace('<div class="item rv">','<a class="item rv" style="text-decoration:none;color:inherit" href="#">',3).replace('</p></div>','</p></a>',3).replace('href="#">','href="About-Certificates.dc.html">',1).replace('href="#">','href="About-Board.dc.html">',1).replace('href="#">','href="Blog.dc.html">',1).replace('</a></div></a>','</a></div>'))
-body+=pcta('Read our blog or <span class="it" style="color:#8FE3B0">talk</span> to us','See how we think about IFRS and carbon, or tell us what you need.','Contact Us','Contact.dc.html','Read our blog','Blog.dc.html')
-page('About-Story.dc.html',"LO-CARB's story",'about',body,logic(),5200); pages.append(('About-Story.dc.html',"About · Story",5200,'about'))
+vis='''<div class="ahero-vis rise d2" aria-hidden="true"><span class="ahero-glow"></span><img src="'''+HAND_CUT+'''" alt=""><span class="aseal"><small>Est.</small><b>2021</b><span>Bangkok</span></span></div>'''
+body=ahero([('About Us','About-Story.dc.html'),("LO-CARB's story",None)],'About LO-CARB','Our <span class="it" style="color:var(--forest)">story</span>',
+ 'Founded in 2021, LO-CARB is a sustainability consultancy that sees sustainability as the heart of business, not a trend or CSR. We combine science, technology and business to help Thai organizations cut emissions, meet global standards and grow.','About-Story.dc.html',vis).replace('CURVEFILL','#000000')
+# Mission — black band
+body+='''<section class="amission"><div class="wrap amission-grid">
+<div class="rv">'''+label('Mission',True)+'''<p class="amission-h">We put the world <span class="it">on a carbon diet.</span></p></div>
+<p class="amission-p rv2">We map a clear path to lower emissions while driving business performance, for organizations from the public to the private sector, large and small.</p>
+</div></section>'''
+# Milestones — horizontal timeline
+MS=[('2021','LO-CARB founded',False),('[Year]','Launched CarbonCal and Carbon Camp',True),('2026',"Became Thailand’s first IFRS Sustainability Alliance member",False),('[Year]','[Other milestone]',True)]
+body+='''<section class="psec amile"><div class="wrap">'''+sechead('Milestones','How we got here')+'''<ol class="atl" role="list">'''+''.join('<li class="rv%s"><span class="atl-dot" aria-hidden="true"></span><b>%s</b><p>%s</p></li>'%(' tbc' if tbc else '',y,h) for y,h,tbc in MS)+'''</ol></div></section>'''
+# We believe — sand
+body+='''<section class="psec sand abelieve"><div class="wrap abelieve-grid">
+<div class="rv">'''+label('We believe')+'''<p class="abelieve-h"><span class="aq" aria-hidden="true">“</span>Sustainability is the new <span class="it">growth core.</span></p></div>
+<p class="abelieve-p rv2">We don’t see it as a trend or CSR, but as the heart of the business: it drives performance, reduces risk, meets customer demand and opens local and global opportunities.</p>
+</div></section>'''
+# 3 DNAs
+DNA=[('growth','Sustainability-rooted','We understand each sector’s challenges and find the smoothest path to transformation.'),('bolt','Technology-driven','We use technology to solve problems more efficiently than traditional methods.'),('story','Creative thinkers','We make sustainability simple, relevant and practical.')]
+body+='''<section class="psec adna"><div class="wrap">'''+sechead('Our DNA','Three things that make LO-CARB')+'''<ol class="adna-g" role="list">'''+''.join('<li class="rv"><div class="adna-top"><span class="adna-n">0%d</span><span class="adna-ic">%s</span></div><h3>%s</h3><p>%s</p></li>'%(i+1,ic(k,24),h,d) for i,(k,h,d) in enumerate(DNA))+'''</ol></div></section>'''
+# Key numbers — green band
+KN=['clients across 5 sectors','organizations using CarbonCal','tCO₂e measured','people trained through Carbon Camp','years in sustainability consulting']
+body+='''<section class="anum"><div class="wrap">'''+label('Key numbers')+'''<h2 class="display h2 anum-h">LO-CARB in numbers</h2><ul class="anum-g" role="list">'''+''.join('<li class="rv"><b>[x]</b><span>%s</span></li>'%k for k in KN)+'''</ul><p class="anum-note">Figures to be confirmed by LO-CARB.</p></div></section>'''
+body+=ACTA('See how we think about IFRS and carbon, or tell us what you need.')
+page('About-Story.dc.html',"LO-CARB's story",'about',body,logic(),4300); pages.append(('About-Story.dc.html',"About · Story",4300,'about'))
 
 # ---------- ABOUT: CERTIFICATES ----------
-def crow(cl,feat,tag,h,p,yr):
-    return '<div class="crow%s rv"><span class="cl">%s</span><div>%s<h3>%s</h3><p>%s</p></div><span class="yr">%s</span><a href="#pdf" class="btn %s act" style="min-height:46px">View PDF %s</a></div>'%(' feat' if feat else '',cl,'<span class="ftag2">%s</span>'%tag if tag else '',h,p,yr,'btn-p' if feat else 'btn-od',UP)
-body=phero([('About Us','About-Story.dc.html'),('Certificates',None)],'Credentials','Our <span class="it" style="color:#0B7A3E">certificates</span>','The standards and memberships behind our work. Each certificate opens as a PDF.')
-body+=sec('', '<div class="clist2">'+crow('IFRS',True,"Thailand's first",'IFRS Sustainability Alliance','Member of the IFRS Foundation\'s Sustainability Alliance.','2024')+crow('ISO',False,'','ISO 14064-1 GHG Verifier','Accredited training · Organisation-level GHG inventories','2023')+crow('TGO',False,'','TGO Carbon Footprint Consultant','Registered consultant · Carbon footprint of organisations','2022')+crow('GHG',False,'','GHG Protocol Corporate Standard','Professional training · Scope 1, 2 and 3 accounting','2021')+'</div>')
-body+=pcta('Read our blog or <span class="it" style="color:#8FE3B0">talk</span> to us','Want to know how these credentials apply to your project?','Contact Us','Contact.dc.html','Read our blog','Blog.dc.html')
+def certimg(txt): return '<span class="acert-img" aria-hidden="true"><span class="acert-paper"><i></i><i></i><i></i><em>%s</em></span></span>'%txt
+body=ahero([('About Us','About-Story.dc.html'),('Certificates',None)],'Credentials','Our <span class="it" style="color:var(--forest)">certificates</span>','The standards and memberships behind our work. Each certificate opens as a PDF.','About-Certificates.dc.html').replace('CURVEFILL','#F3F0DF')
+body+='''<section class="psec acert"><div class="wrap">
+<article class="acert-feat rv">
+<div class="acert-feat-l"><span class="acert-logo">Official logo</span></div>
+<div class="acert-feat-r">
+<span class="acert-tag">Thailand’s 1st</span>
+<h2 class="acert-feat-h">Thailand’s 1<em>st&#8203;</em> IFRS Sustainability Alliance &amp; ISSB Training Partner</h2>
+<p class="acert-feat-p">Direct connection to the standard setter &amp; IFRS community</p>
+<div class="acert-meta"><span><small>Issued by</small><b>IFRS Foundation</b></span><span><small>Year</small><b>[Year]</b></span></div>
+<a href="#pdf" class="btn btn-l">View PDF '''+UP+'''</a>
+</div>
+</article>
+<ul class="acert-g" role="list">'''
+CERTS=[('ISO','ISO','[ISO standard to confirm]','[Issuer]'),('ISSB Training Partner','ISSB','Thailand’s first ISSB training partner','[Issuer]'),('CFO','CFO','Carbon Footprint for Organization','TGO'),('BSI (CBAM)','BSI','Carbon Border Adjustment Mechanism','BSI')]
+body+=''.join('''<li class="acert-c rv">'''+certimg(img)+'''<div class="acert-b"><h3>%s</h3><p>%s</p><div class="acert-meta"><span><small>Issued by</small><b>%s</b></span><span><small>Year</small><b>[Year]</b></span></div><a href="#pdf" class="acert-pdf">View PDF '''%(n,d,iss)+UP+'''</a></div></li>''' for n,img,d,iss in CERTS)
+body+='''</ul><p class="anote2">Certificate images and PDFs to be added from LO-CARB’s shared drive.</p></div></section>'''
+body+=ACTA('Want to know how these credentials apply to your project?')
 page('About-Certificates.dc.html','Certificates','about',body,logic(),2900); pages.append(('About-Certificates.dc.html','About · Certificates',2900,'about'))
 
 # ---------- ABOUT: BOARD ----------
-def bm(ini,name,role,bio): return '<a href="#" class="bm rv"><span class="bph"><svg class="sil" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="34" r="20" fill="currentColor"></circle><path d="M10 100c0-24 18-40 40-40s40 16 40 40z" fill="currentColor"></path></svg><span class="ini">%s</span></span><h3>%s</h3><small class="ro">%s</small><p>%s</p></a>'%(ini,name,role,bio)
-body=phero([('About Us','About-Story.dc.html'),('Board of directors',None)],'Leadership','Board of <span class="it" style="color:#0B7A3E">directors</span>','The people who set LO-CARB\'s direction and stand behind our work.')
-body+=sec('', '<div class="board">'+bm('AC','Arthit Chaem-Choi','Co-Founder &amp; CEO','Former energy-sector analyst who started LO-CARB to make carbon data usable.')+bm('PS','Pimchanok Srisuk','Co-Founder · Head of Advisory','Leads IFRS S1 &amp; S2 projects for listed and pre-IPO clients.')+bm('NW','Nattapong Wongsiri','Chief Technology Officer','Builds CarbonCal and Carbon Scout with a team of 18 engineers.')+bm('KR','Kanokwan Rattanakul','Independent Director','Twenty years in audit and capital markets governance.')+'</div><div class="note">'+ic('info',20)+'<span>Names and photos are published with each director\'s consent under the Personal Data Protection Act (PDPA).</span></div>')
-body+=pcta('Read our blog or <span class="it" style="color:#8FE3B0">talk</span> to us','Partners and advisers are welcome to reach the team directly.','Contact Us','Contact.dc.html','Read our blog','Blog.dc.html')
-page('About-Board.dc.html','Board of directors','about',body,logic(),2900); pages.append(('About-Board.dc.html','About · Board',2900,'about'))
+LI='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.5c0-1.3-.02-3-1.83-3-1.83 0-2.11 1.43-2.11 2.9V21H9z"></path></svg>'
+def bcard(ini,name,role,bio):
+    return '''<li class="abm rv"><span class="abm-ph"><svg class="sil" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="36" r="19" fill="currentColor"></circle><path d="M12 100c0-23 17-38 38-38s38 15 38 38z" fill="currentColor"></path></svg><span class="abm-ini">%s</span></span><div class="abm-b"><h3>%s</h3><small>%s</small><p>%s</p><a href="#linkedin" class="abm-li" aria-label="%s on LinkedIn">'''%(ini,name,role,bio,name)+LI+'''</a></div></li>'''
+body=ahero([('About Us','About-Story.dc.html'),('Board of directors',None)],'Leadership','Board of <span class="it" style="color:var(--forest)">directors</span>','The people who set LO-CARB’s direction and stand behind our work.','About-Board.dc.html').replace('CURVEFILL','#F3F0DF')
+body+='''<section class="psec aboard"><div class="wrap"><ul class="abm-g" role="list">'''+bcard('AC','Arthit Chaem-Choi','Co-Founder','[One-line bio]')+bcard('—','[Name]','[Title]','[One-line bio]')+bcard('—','[Name]','[Title]','[One-line bio]')+bcard('—','[Name]','[Title]','[One-line bio]')+'''</ul>
+<div class="note">'''+ic('info',20)+'''<span>Names and photos are published with each director’s consent under the Personal Data Protection Act (PDPA).</span></div></div></section>'''
+body+=ACTA('Partners and advisers are welcome to reach the team directly.')
+page('About-Board.dc.html','Board of directors','about',body,logic(),2600); pages.append(('About-Board.dc.html','About · Board',2600,'about'))
 
 # ---------- SERVICE PAGES ----------
 def service(fname,title,crumb,lab,h1,lead,cta,whatlab,whath2,whatp,whatitems,showbanner,stephead,stepsl,pt,blogposts,formsol,h):
     body=phero([('Our Solutions','Main.dc.html'),(crumb,None)],lab,h1,lead,btns((cta,'#form'),('See how it works','#how')))
     body+=sec('', sechead(whatlab,whath2,whatp)+items(whatitems,'cols2' if len(whatitems)==2 else 'cols3'))
-    if showbanner: body+=banner("Thailand's <span class=\"it\" style=\"color:#8FE3B0\">first</span> IFRS Sustainability Alliance member")
+    if showbanner: body+=banner("Thailand’s 1<span class=\"it\" style=\"color:#8FE3B0\">st&#8203;</span> IFRS Sustainability Alliance &amp; ISSB Training Partner")
     body+='<section class="psec sand" id="how"><div class="wrap">'+sechead('How it works',stephead)+steps(stepsl)+'</div></section>'
-    body+=sec('', sechead('Client story','Results we can show','',('All client stories','Blog-Portfolio.dc.html'))+pt)
+    body+=sec('', sechead('Client story','Client results','',('All client stories','Blog-Portfolio.dc.html'))+pt)
     body+=sec('tight', sechead('From the blog','Read more on this topic','',('View all posts','Blog.dc.html'))+related(blogposts))
     body+='<section class="psec sand" id="form"><div class="wrap">'+sechead('Get in touch',cta,'Fill in the form and the right specialist will reply.')+inline_form(formsol)+'</div></section>'
     page(fname,title,'solutions',body,logic('{ agree: false, sent: false, err: false }',FORM_JS),h)
@@ -279,7 +313,7 @@ service('Solution-ISSB.dc.html','ISSB training','ISSB training','Solution · Ser
  'Hands-on ISSB reporting training from Thailand\'s first ISSB training partner.',
  'Plan a workshop','Who it is for','Training for every level',' ',
  [('board','Board &amp; executives','Briefings on what ISSB means for governance, risk and strategy.'),('users','Management','Sessions for finance, IR and sustainability leads who own the disclosure.'),('cap','Reporting team','Hands-on workshops on S1 and S2 data, calculations and drafting.')],
- False,'From brief to follow-up',
+ True,'From brief to follow-up',
  [('Needs check','We learn where your team is today.'),('Tailored programme','Half-day or full-day, on-site or online, in Thai or English.'),('Delivery','On-site or online sessions led by LO-CARB specialists.'),('Follow-up','Q&amp;A and materials your team keeps.')],
  pteaser('cv5','Portfolio · ISSB training','[Client name]: ISSB training for the board and reporting team','[X]','directors and managers trained'),
  [('cv4','Knowledge base','What boards need to know about ISSB','Blog-Article.dc.html'),('cv2','Knowledge base','IFRS S1 vs S2: what each standard asks for','Blog-Article.dc.html'),('cv3','News &amp; events','ISSB for Boards workshop, Bangkok · 21 Nov 2026','Blog-Article.dc.html')],
@@ -288,8 +322,8 @@ service('Solution-ISSB.dc.html','ISSB training','ISSB training','Solution · Ser
 service('Solution-Reporting.dc.html','Sustainability reporting & consulting','Reporting &amp; consulting','Solution · Service',
  'Reporting <span class="it" style="color:#0B7A3E">&amp;</span> consulting',
  'Sustainability and ESG reports and strategy that meet GRI, CDP and other standards, through to your Net Zero pathway, led by our specialist team.',
- 'Talk to us','What we cover','Advice that ends in a report','',
- [('target','Materiality','Find the topics that matter most to your business and stakeholders.'),('rep','Sustainability report','Drafting and design of a report your board can sign off.'),('shield','Disclosure advisory','Guidance on frameworks, data and review before you publish.')],
+ 'Talk to us','What we cover','From materiality assessment to a published report','',
+ [('rep','Sustainability &amp; ESG reports','Reports that meet GRI, CDP and other standards.'),('target','ESG strategy','Strategy and materiality that set what to report and what to improve.'),('growth','Net Zero pathway','A target and roadmap to Net Zero, led by our specialist team.')],
  False,'How a reporting project runs',
  [('Materiality assessment','Agree the topics to report.'),('Data collection','Gather and check the numbers.'),('Drafting','Write the report with your team.'),('Review','Internal and external review before sign-off.'),('Disclosure','Publish and file with confidence.'),('Assurance support','Get ready for limited assurance by a third party.')],
  pteaser('cv7','Portfolio · Reporting','[Client name]: a first sustainability report in one cycle','[X]%','of material topics backed by verified data'),
@@ -330,11 +364,11 @@ def product(fname,title,crumb,h1,lead,b1,b2,benefits,stats,features,testis,faqs,
 camp=sec('sand', '<div class="pgrid mid"><div class="rv">'+label('Carbon Camp')+'<h2 class="display h2" style="max-width:14ch">Training so your team can <span class="it" style="color:#0B7A3E">run it</span></h2><p class="lead muted" style="margin-top:24px;font-size:calc(17px*var(--s))">Carbon Camp is hands-on training that comes with CarbonCal: your team learns carbon accounting by doing it on your own data.</p></div><div class="rv2">'+steps([('Kick-off','Set goals and scope.'),('Hands-on sessions','Work through your own data in CarbonCal.'),('Wrap-up','Certificate of completion and a 30-day follow-up check-in.')]).replace('class="svc"','class="svc" style="grid-template-columns:minmax(0,1fr);row-gap:32px"')+'</div></div>')
 product('Solution-CarbonCal.dc.html','CarbonCal + Carbon Camp','CarbonCal + Carbon Camp',
  'Carbon<span class="it" style="color:#0B7A3E">Cal</span> + Carbon Camp','Measure Scope 1, 2 and 3 emissions on one easy, accurate platform, so your carbon footprint for organization (CFO) is ready for disclosure and TGO registration, with training that brings your team on board.','Request free trial','Book a demo',
- [('bolt','Faster than spreadsheets','Upload activity data once and get emissions calculated with Thai emission factors.'),('layers','Every scope in one place','Scope 1, 2 and 3 emissions side by side, by site and by month.'),('users','Built for your team','Roles for data owners, reviewers and approvers, with a full audit trail.')],
+ [('layers','Scope 1, 2 and 3 on one platform','Measure all three scopes on one easy, accurate platform.'),('cert','CFO ready for TGO registration','Your carbon footprint for organization (CFO) is ready for disclosure and TGO registration.'),('cap','Training with Carbon Camp','Hands-on training that brings your team on board.')],
  [('[X]','companies'),('[X]','users'),('[X]','tCO₂e measured')],
  [('Measure Scope 1–3','Enter or import fuel, electricity, travel and purchase data. CarbonCal applies the right factor and shows the result by scope.'),('Track progress over time','See monthly trends against your baseline and reduction targets, site by site.'),('Share reports','Export board-ready summaries and data tables for IFRS S2, 56-1 One Report and buyer questionnaires.'),('Invite your team','Give each site its own data owner and keep every change logged for auditors.')],
  [('[Client quote, pending approval]','SK','[Name]','Sustainability Manager, [Client name]'),('[Client quote, pending approval]','WT','[Name]','CFO, [Client name]'),('[Client quote, pending approval]','PJ','[Name]','Operations Director, [Client name]')],
- [{'q':'How much does CarbonCal cost?','a':'Pricing depends on the number of sites and users. Start with a 14-day free trial, then choose an annual plan that fits.'},{'q':'How is our data kept secure?','a':'Data is encrypted in transit and at rest, access is role-based, and you can export or delete your data at any time.'},{'q':'What support do we get?','a':'Email and chat support on business days, plus Carbon Camp onboarding so your team can run CarbonCal on its own.'}],
+ [{'q':'How much does CarbonCal cost?','a':'Pricing depends on the number of sites and users. [Pricing and free-trial terms to confirm with the product team.]'},{'q':'How is our data kept secure?','a':'Access is role-based for data owners, reviewers and approvers. [Encryption, hosting and data-retention details to confirm with the product team.]'},{'q':'What support do we get?','a':'Carbon Camp onboarding helps your team run CarbonCal on its own. [Support channels and hours to confirm.]'}],
  camp,'CarbonCal + Carbon Camp',6400)
 
 product('Solution-CarbonScout.dc.html','Carbon Scout','Carbon Scout',
@@ -407,7 +441,7 @@ page('Blog-Story.dc.html','Client story','blog',body,logic(),5000); pages.append
 # ---------- ARTICLE (template) ----------
 body='''<section class="phero"><div class="wrap">'''+crumbs([('Blog','Blog.dc.html'),('Knowledge base','Blog-Knowledge.dc.html'),('Article',None)])+'''
 <div style="max-width:960px">'''+label('Knowledge base · IFRS')+'''<h1 class="display ph1 rise" style="font-size:calc(clamp(36px,4.4vw,72px)*var(--s))">What IFRS S2 means for <span class="it" style="color:#0B7A3E">SET-listed</span> companies</h1>
-<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-top:28px" class="pmeta"><span>2 Oct 2026</span><span>·</span><span>By Pimchanok Srisuk</span></div></div>
+<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-top:28px" class="pmeta"><span>2 Oct 2026</span><span>·</span><span>By [Author name]</span></div></div>
 </div></section>
 <div class="wrap"><span class="cv cv2 rv" style="aspect-ratio:21/9;border-radius:28px"></span></div>
 '''+sec('', '''<div class="art"><div>
@@ -415,7 +449,7 @@ body='''<section class="phero"><div class="wrap">'''+crumbs([('Blog','Blog.dc.ht
 <div class="prose"><h2>What IFRS S2 asks for</h2><p>IFRS S2 is the ISSB's climate standard. It asks companies to explain how climate-related risks and opportunities could affect their cash flows, access to finance and cost of capital.</p><p>Disclosures are grouped into four areas that will look familiar to anyone who has used TCFD: governance, strategy, risk management, and metrics and targets.</p><h2>Why it matters for SET-listed companies</h2><p>Investors increasingly compare companies on the same climate metrics. A clear, consistent disclosure makes it easier for them to price your risk, and harder to overlook your progress.</p>
 <div class="inlinecta"><div><b>Need help with IFRS S2?</b><span>Talk to Thailand's first IFRS Sustainability Alliance member.</span></div><a href="Solution-IFRS.dc.html" class="btn btn-l">IFRS Standards '''+AR+'''</a></div>
 <h2>Three steps to get ready</h2><p>First, run a gap analysis against the standard. Second, bring emissions data into one inventory that covers all three scopes. Third, agree climate scenarios with the board early, because they shape the rest of the disclosure.</p></div>
-<div class="author"><span class="av2">PS</span><div><b>Pimchanok Srisuk</b><span>Head of Advisory at LO-CARB · Leads IFRS S1 &amp; S2 projects for listed companies</span></div></div>
+<div class="author"><span class="av2">—</span><div><b>[Author name]</b><span>[Author title] at LO-CARB</span></div></div>
 </div><aside class="aside"><div class="box"><small>Category</small><span>Knowledge base</span></div><div class="box"><small>Solution</small><div class="tagrow"><a href="Solution-IFRS.dc.html" class="tag g" style="text-decoration:none">IFRS</a></div></div><div class="box"><small>Share</small><div class="social" style="margin-top:0"><a href="#" class="soc" style="color:#0E0E0C;border-color:rgba(14,14,12,.2)">in</a><a href="#" class="soc" style="color:#0E0E0C;border-color:rgba(14,14,12,.2)">f</a></div></div></aside></div>''')
 body+=sec('tight', sechead('Related posts','Keep reading','',('View all posts','Blog.dc.html'))+related([('cv4','Knowledge base','IFRS S1 vs S2: what each standard asks for','Blog-Article.dc.html'),('cv1','Portfolio · IFRS','[Client name]: IFRS S1 &amp; S2 readiness in [X] weeks','Blog-Story.dc.html'),('cv6','Knowledge base','Climate scenario analysis for first-time reporters','Blog-Article.dc.html')]))
 body+=pcta('Questions about <span class="it" style="color:#8FE3B0">IFRS S2</span>?','Our specialists can tell you what it means for your company.','Talk to us','Contact.dc.html','Explore IFRS services','Solution-IFRS.dc.html')
